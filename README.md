@@ -4,3 +4,4 @@ This is my journey to start doing everyday coding, I build Neural Network using 
 ## Subheader
 
 The first thing I need to do is:
+1. I will use Object Oriented Programing for Model Creation
