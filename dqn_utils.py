@@ -10,9 +10,10 @@ class ReplayBuffer():
         #---create buffer memory----#
         self.state_memory = np.zeros((self.max_memory_size, *input_dims), dtype=np.float32)
         self.action_memory = np.zeros(self.max_memory_size, dtype=np.int32)
-        self.reward_memory = np.zeros_like(self.action_memory, dtype=np.float32)
-        self.future_state_memory = np.zeros_like(self.state_memory)
-        self.terminal_memory = np.zeros_like(self.action_memory, dtype=np.int32) #binary
+        self.reward_memory = np.zeros(self.max_memory_size, dtype=np.float32)
+        self.future_state_memory = np.zeros((self.max_memory_size, *input_dims),
+                                dtype=np.float32)
+        self.terminal_memory = np.zeros(self.max_memory_size, dtype=np.int32) #binary
 
     def StoreTransition(self, state, action, reward, future_state, terminal):
         index = self.memory_counter % self.max_memory_size #iterate through unocuppied memory
@@ -21,7 +22,10 @@ class ReplayBuffer():
         self.reward_memory[index] = reward
         self.action_memory[index] = action
         self.terminal_memory[index] = 1-int(terminal)
-        self.memory_counter =+1
+        self.memory_counter +=1
+
+    def returunMemoryCounter(self):
+        return self.memory_counter
 
     def SampleBuffer(self, batch_size):
         max_index = min(self.memory_counter, self.max_memory_size)
@@ -33,7 +37,7 @@ class ReplayBuffer():
         actions = self.action_memory[batch]
         terminal = self.terminal_memory[batch]
 
-        return states, rewards, actions, future_states, terminal
+        return states, actions, rewards, future_states, terminal
 
 def BuildDQN(lr, n_acions, input_dims, fc1_dims, fc2_dims):
     model = keras.Sequential([
@@ -88,12 +92,12 @@ class Agent():
         batch_index = np.arange(self.batch_size, dtype=np.int32)
 
         q_target[batch_index, actions] = rewards + \
-            self.gamma * np.max(q_future, axsi=1)*terminal
+            self.gamma * np.max(q_future, axis=1) * terminal
 
         self.q_eval.train_on_batch(states, q_target)
 
         self.epsilon = self.epsilon - self.epsilon_decrement if self.epsilon > \
-            self.epsilon_min else self.epsilon_min
+            self.epsilon_min else self.epsilon_min     
 
     def SaveModel(self):
         self.q_eval.save(self.model_file)

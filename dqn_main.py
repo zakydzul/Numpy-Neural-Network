@@ -4,6 +4,7 @@ from dqn_utils import Agent
 import gym
 
 if __name__ == '__main__':
+    tf.compat.v1.disable_eager_execution()
     env = gym.make('LunarLander-v2')
     lr = 0.001
     n_games = 500
@@ -30,6 +31,6 @@ if __name__ == '__main__':
         scores.append(score)
 
         avg_score=np.mean(scores[-100:])
-        print('episode:',i,'score %.2f' %score,
+        print('episode:',i,'score %.2f' % score,
                 'average_score %.2f' % avg_score,
-                'epsilon %.2f' %agent.epsilon)
+                'epsilon %.2f' % agent.epsilon)
